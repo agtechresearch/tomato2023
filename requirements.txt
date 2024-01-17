@@ -1,0 +1,10 @@
+jupyter
+
+pandas
+numpy
+torch
+tsai
+statsmodels
+
+seaborn
+matplotlib
