@@ -8,3 +8,6 @@ statsmodels
 
 seaborn
 matplotlib
+
+tqdm
+torchsummary
