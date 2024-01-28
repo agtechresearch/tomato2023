@@ -16,10 +16,11 @@ class MyDataset:
         self.df = df
         self.x_cols = x_cols if x_cols else list(df.columns)
         self.y_cols = y_cols if y_cols else list(df.columns)
+        self.x_test = None
         self.y_test = None
 
     def _to_sequences(self, df, seq_size=SEQUENCE_SIZE):
-        num_len = len(df) - seq_size
+        num_len = df.shape[0] - seq_size
         x = np.zeros((num_len, seq_size, len(self.x_cols)))
         y = np.zeros((num_len, len(self.y_cols)))
         df_x = df[self.x_cols]
@@ -43,6 +44,7 @@ class MyDataset:
 
     def preprocessing(self, train_ratio=0.8):
         x_train, y_train, x_test, y_test = self._train_test_split(train_ratio)
+        self.x_test = x_test
         self.y_test = y_test
         
         train_dataset = TensorDataset(x_train, y_train)
@@ -58,15 +60,18 @@ class Modeling:
     criterion = { # https://nuguziii.github.io/dev/dev-002/
         "mse": nn.MSELoss,
         "bce": nn.BCELoss,
-        "bceSigmoid": nn.BCEWithLogitsLoss
+        "bceSigmoid": nn.BCEWithLogitsLoss,
+        "crossEntropy": nn.CrossEntropyLoss,
     }
     optimizer = {
-        # "CrossEntropyLoss": torch.optim.CrossEntropyLoss,
         "SparseAdam": torch.optim.SparseAdam,
         "Adam": torch.optim.Adam, 
     }
 
-    def __init__(self, model, data: MyDataset, lr=0.001, device=None):
+    def __init__(self, model, data: MyDataset, 
+                 taskType="regression", criterion="mse",
+                 lr=0.001, device=None):
+        
         if not device:
             has_mps = torch.backends.mps.is_built()
             device = "mps" if has_mps else "cuda" if torch.cuda.is_available() else "cpu"
@@ -76,11 +81,17 @@ class Modeling:
         self.model = model(
             input_dim=len(data.x_cols), 
             output_dim=len(data.y_cols),
-            device=device
+            device=device,
+            taskType=taskType
         ).to(device)
-        self.criterion = nn.MSELoss()
+
+        if "classification" in taskType:
+            criterion = "crossEntropy"
+        self.criterion = Modeling.criterion[criterion]()
+
         self.optimizer = torch.optim.Adam(
             self.model.parameters(), lr=lr)
+        
         self.scheduler = ReduceLROnPlateau(
             self.optimizer, 'min', factor=0.5, patience=3, verbose=True)
 
@@ -96,7 +107,7 @@ class Modeling:
                     x_batch.to(self.device), y_batch.to(self.device)
 
                 self.optimizer.zero_grad()
-                outputs = self.model(x_batch)
+                outputs = self.model(x_batch) 
                 loss = self.criterion(outputs, y_batch)
                 loss.backward()
                 self.optimizer.step()
@@ -129,7 +140,6 @@ class Modeling:
                     print("Early stopping!")
                     break
 
-
     def eval(self, test_loader, y_test):
         self.model.eval()
         predictions = []
@@ -139,7 +149,6 @@ class Modeling:
                 x_batch = x_batch.to(self.device)
                 outputs = self.model(x_batch)
                 predictions.extend(outputs.squeeze().tolist())
-    
 
         y_true = y_test[:len(predictions)].numpy()
         y_pred = np.array(predictions)        

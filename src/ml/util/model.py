@@ -6,16 +6,25 @@ class LSTM(nn.Module):
 
     def __init__(self, input_dim=1, output_dim=1,
                   hidden_size=4, num_layers=1,
-                  device="cpu"):
+                  device="cpu", taskType="regression"):
         super(LSTM, self).__init__()
 
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.device = device
+        self.taskType = taskType
         
         self.lstm = nn.LSTM(input_size=input_dim, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, output_dim)
+        self.sigmoid = nn.Sigmoid()
+        self.softmax = nn.Softmax(dim=1)   
+
+        self._task = {
+            "regression": lambda x: x,
+            "classification": lambda x: self.sigmoid(x),
+            "multi-class classification": lambda x: torch.argmax(self.softmax(x), dim=1),
+        }
 
     def forward(self, x):
         h_0 = Variable(torch.zeros(
@@ -28,6 +37,8 @@ class LSTM(nn.Module):
         ula, (h_out, _) = self.lstm(x, (h_0, c_0))
         h_out = h_out.view(-1, self.hidden_size)
         out = self.fc(h_out)
+
+        out = self._task[self.taskType](out)
         
         return out
     
