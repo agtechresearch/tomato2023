@@ -12,7 +12,7 @@ class LSTM(nn.Module):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.device = device
-        self.taskType = taskType
+        # self.taskType = taskType
         
         self.lstm = nn.LSTM(input_size=input_dim, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True)
@@ -20,11 +20,11 @@ class LSTM(nn.Module):
         self.sigmoid = nn.Sigmoid()
         self.softmax = nn.Softmax(dim=1)   
 
-        self._task = {
-            "regression": lambda x: x,
-            "classification": lambda x: self.sigmoid(x),
-            "multi-class classification": lambda x: torch.argmax(self.softmax(x), dim=1),
-        }
+        # self._task = {
+        #     "regression": lambda x: x,
+        #     "classification": lambda x: (self.sigmoid(x) > 0.5).float(),
+        #     "multi-class classification": lambda x: torch.argmax(self.softmax(x), dim=1),
+        # }
 
     def forward(self, x):
         h_0 = Variable(torch.zeros(
@@ -37,8 +37,9 @@ class LSTM(nn.Module):
         ula, (h_out, _) = self.lstm(x, (h_0, c_0))
         h_out = h_out.view(-1, self.hidden_size)
         out = self.fc(h_out)
-
-        out = self._task[self.taskType](out)
+        
+        # out = self._task[self.taskType](out)
+        # out.requires_grad_(True)
         
         return out
     

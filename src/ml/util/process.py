@@ -16,7 +16,7 @@ class MyDataset:
         self.df = df
         self.x_cols = x_cols if x_cols else list(df.columns)
         self.y_cols = y_cols if y_cols else list(df.columns)
-        self.x_test = None
+        self.y_train = None
         self.y_test = None
 
     def _to_sequences(self, df, seq_size=SEQUENCE_SIZE):
@@ -44,7 +44,7 @@ class MyDataset:
 
     def preprocessing(self, train_ratio=0.8):
         x_train, y_train, x_test, y_test = self._train_test_split(train_ratio)
-        self.x_test = x_test
+        self.y_train = y_train
         self.y_test = y_test
         
         train_dataset = TensorDataset(x_train, y_train)
@@ -60,8 +60,8 @@ class Modeling:
     criterion = { # https://nuguziii.github.io/dev/dev-002/
         "mse": nn.MSELoss,
         "bce": nn.BCELoss,
-        "bceSigmoid": nn.BCEWithLogitsLoss,
-        "crossEntropy": nn.CrossEntropyLoss,
+        "bceSigmoid": nn.BCEWithLogitsLoss, # 이미 sigmoid 있음
+        "crossEntropy": nn.CrossEntropyLoss, # 이미 sigmoid 있음
     }
     optimizer = {
         "SparseAdam": torch.optim.SparseAdam,
@@ -82,11 +82,11 @@ class Modeling:
             input_dim=len(data.x_cols), 
             output_dim=len(data.y_cols),
             device=device,
-            taskType=taskType
+            # taskType=taskType
         ).to(device)
 
-        if "classification" in taskType:
-            criterion = "crossEntropy"
+        # if "classification" in taskType:
+        #     criterion = "crossEntropy"
         self.criterion = Modeling.criterion[criterion]()
 
         self.optimizer = torch.optim.Adam(
@@ -99,7 +99,7 @@ class Modeling:
     def train(self, epochs, train_loader, test_loader, early_stop_count=None):
         min_val_loss = float('inf')
 
-        for epoch in range(epochs):
+        for epoch in range(1, epochs+1):
             self.model.train()
             for batch in train_loader:
                 x_batch, y_batch = batch
@@ -108,8 +108,8 @@ class Modeling:
 
                 self.optimizer.zero_grad()
                 outputs = self.model(x_batch) 
-                loss = self.criterion(outputs, y_batch)
-                loss.backward()
+                train_loss = self.criterion(outputs, y_batch)
+                train_loss.backward()
                 self.optimizer.step()
 
             # Validation
@@ -127,7 +127,7 @@ class Modeling:
             val_loss = np.mean(val_losses)
             # self.scheduler.step(val_loss)
             if epoch % 10 == 0:
-                print(f"Epoch {epoch + 1}/{epochs}, Validation Loss: {val_loss:.4f}")
+                print(f"Epoch {epoch}/{epochs}, Training Loss: {train_loss}, Validation Loss: {val_loss:.8f}")
 
             if early_stop_count:
                 if val_loss < min_val_loss:
