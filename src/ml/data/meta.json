@@ -1,18 +1,21 @@
 {
   "growth": {
     "BLMNG_CLUSTER": "개화군",
+    "FWRCT_HGHT": "화방높이",
+    "LAST_FWRCT_NO": "최종화방번호",
     "FRST_TREE_CNT": "착과수",
-    "FRT_LNGTH": "과일길이",
+
     "STEM_THNS": "줄기굵기",
     "YIELD_CLUSTER": "수확군",
+    "YIELD_CNT": "수확수",
+    "FRT_WT": "과일무게",
+    "FRT_WDTH": "과일폭",
+    "FRT_LNGTH": "과일길이",
+    "GRTH_LNGTH": "생장길이",
     "PLT_LNGTH": "식물길이",
     "LEAF_WDTH": "엽폭",
     "LEAF_LNGTH": "엽장",
-    "LEAF_CNT": "엽수",
-    "FWRCT_HGHT": "화방높이",
-    "FRT_WDTH": "과일폭",
-    "GRTH_LNGTH": "생장길이",
-    "LAST_FWRCT_NO": "최종화방번호"
+    "LEAF_CNT": "엽수"
   },
   "meta": {
     "DYTM_NIGHT_CD": "주간야간구분코드",

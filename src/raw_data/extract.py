@@ -5,7 +5,8 @@ import pandas as pd
 
 
 #%%
-data = [pd.read_csv(f"{file}") if file[-4:]==".csv" else None for file in os.listdir("data")]
+path = "./november"
+data = [pd.read_csv(f"{path}/{file}") for file in os.listdir(path)]
 
 #%%
 data[0].iloc[0,2]
@@ -13,20 +14,36 @@ data[0].iloc[0,2]
 #%%
 cols = {}
 for d in data:
-    if d:
+    if d is not None:
         print(d.shape)
         for col in d.columns:
             if col not in cols:
                 cols[col] = 1
             else:
                 cols[col] += 1
+#%%
+for k in cols.copy():
+    if 1 < cols[k] < 14:
+        print(k, cols[k])
+        del cols[k]
 print(cols)
 
-for k, v in cols.items():
-    if v == 1:
-        print(f"'{k}',", end=" ")
+# 환경정보이나 모든 파일에 들어있지 않아서 제거
+for k in ["SUB_MHRLS_OPRT_YN_4", "CLR_OPRT_YN_3", "HTNG_TPRT_2"]:
+    del cols[k]
 
-# %%
+del cols["ZONE_NM"] # 아마도 의미 없는 구역 정보
+
+print(cols)
+
+#%%
+growth = []
+control = []
+for k, v in cols.items():
+    if v >= 14:
+        control.append(k)
+    else:
+        growth.append(k)
 
 y = [
     ['FRT_LNGTH', "TOMATO_FRUIT_LEN_ENV_20231123.csv"],
@@ -36,7 +53,7 @@ y = [
     ["FRT_WT", "TOMATO_FRUIT_WEIGHT_ENV_20231123.csv"],
     ["FRT_WDTH", "TOMATO_FRUIT_WIDTH_ENV_20231123.csv"],
     ["GRTH_LNGTH", "TOMATO_GROWTH_LENGTH_ENV_20231123.csv"],
-    # ["YIELD_CNT", "TOMATO_HARVEST_ENV_20231123.csv"],
+    ["YIELD_CNT", "TOMATO_HARVEST_ENV_20231123.csv"],
     ["YIELD_CLUSTER", "TOMATO_HARVEST_PER_TRUSS_ENV_20231123.csv"],
     ["LAST_FWRCT_NO", "TOMATO_LAST_FLOWERING_BUD_ENV_20231123.csv"],
     ["LEAF_LNGTH", "TOMATO_LEAF_LEN_ENV_20231123.csv"],
@@ -46,87 +63,43 @@ y = [
     ["STEM_THNS", "TOMATO_STEM_THICKNESS_ENV_20231123.csv"]
 ]
 
-
-new_df = {
-    "MSRM_DT": pd.read_csv("TOMATO_FRUIT_LEN_ENV_20231123.csv",
-                           usecols=["MSRM_DT"])["MSRM_DT"]
-}
+new_df = {}
 for col, fname in y:
-    new_df[col] = pd.read_csv(f"{fname}",
+    new_df[col] = pd.read_csv(f"{path}/{fname}",
                               usecols=[col])[col]
     
-
 new_df = pd.DataFrame(new_df)
+new_df = pd.concat([new_df, pd.read_csv(f"{path}/{fname}", usecols=control)], axis=1)
+
+# 모든 일자가 5분 간격으로 끊김없이 연속적으로 존재하는지 확인
+from datetime import datetime, timedelta
+for t in range(1, new_df["MSRM_DT"].shape[0]):
+    before = datetime.strptime( new_df["MSRM_DT"].iloc[t-1], "%Y-%m-%d %H:%M:%S")+timedelta(minutes=5)
+    after = datetime.strptime( new_df["MSRM_DT"].iloc[t], "%Y-%m-%d %H:%M:%S")
+    if before != after:
+        print(t, before, after)
 new_df.head()
-
-new_df.to_csv("growth.csv", index=False)
-
 #%%
+# 해당 컬럼의 모든 값이 동일하면 제거
+print(new_df.shape)
+for col in new_df.columns:
+    if new_df[col].nunique() == 1:
+        print(col, new_df[col].unique())
+        del new_df[col]
+print(new_df.shape)
 
-x = [
-    'MSRM_DT', 
-# 'ZONE_NM', 
-'PFBS_NTRO_CBDX_CTRN', 
-'EXTN_TPRT', 
-'DWP_TPRT', 
-'WNDRC', 
-'ABSLT_HMDT', 
-'WDSP', 
-'STRTN_WATER', 
-'EXTN_SRQT', 
-'WATER_LACK_VL', 
-'EXTN_ACCMLT_QOFLG', 
-'SPL_TPRT_1', 
-'SPL_TPRT_2', 
-'HTNG_TPRT_1', 
-'VNTILAT_TPRT_5', 
-'VNTILAT_TPRT_4', 
-'VNTILAT_TPRT_3', 
-'VNTILAT_TPRT_2', 
-'VNTILAT_TPRT_1', 
-'TRWVLV_OPDR_RATE_2', 
-'TRWVLV_OPDR_RATE_1', 
-'HRZNT_SCRN_OPDR_RATE_2', 
-'SKLT_OPDR_RATE_1_LEFT', 
-'HRZNT_SCRN_OPDR_RATE_1', 
-'SKLT_OPDR_RATE_1_RIGHT', 
-'INNER_TPRT_1', 
-'INNER_TPRT_2', 
-'AVE_INNER_TPRT_1_2', 
-'AVE_INNER_HMDT_1_2', 
-'INNER_HMDT_1', 
-'INNER_HMDT_2', 
-'CBDX_STNG_VL', 
-'WTSPL_QTY', 
-'NTSLT_SPL_PH_LVL', 
-'NTSLT_SPL_PH_LVL_STNG_VL', 
-'NTSLT_SPL_ELCDT', 
-'NTSLT_SPL_ELCDT_STNG_VL', 
-'DYTM_NIGHT_CD', 
-'SPRYN_DEVICE', 
-'SUB_MHRLS_OPRT_YN_1', 
-'SUB_MHRLS_OPRT_YN_2', 
-'SUB_MHRLS_OPRT_YN_3', 
-'SUB_MHRLS_OPMD_2', 
-'PRCPT_YN', 
-'FMGEQ_OPMD', 
-'CBDX_GNRT_OPMD', 
-'TRWVLV_OPMD_1', 
-'SKLT_OPMD_1_LEFT', 
-'FMGEQ_OPRT_YN', 
-'CBDX_GNRT_OPRT_YN', 
-]
 
-new_df = pd.read_csv("TOMATO_FRUIT_LEN_ENV_20231123.csv",
-                     usecols=x, index_col=0)
-new_df.to_csv("control.csv", index=False)
 
 
 #%%
+new_df.to_csv("merged_all.csv", index=False)
+new_df.dropna().to_csv("merged_drop.csv", index=False)
+new_df.info()
 
+# %%
 
-for i in range(1, len(data)):
-    for xx in x:
-        print((data[i][x] == data[i-1][x]).all())
-            
+import sweetviz as sv
+
+my_report = sv.analyze(new_df)
+my_report.show_html("sweetviz_merged_all.html")
 # %%
