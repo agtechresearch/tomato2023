@@ -18,7 +18,6 @@
     "LEAF_CNT": "엽수"
   },
   "meta": {
-    "DYTM_NIGHT_CD": "주간야간구분코드",
     "MSRM_DT": "측정일",
     "ZONE_NM": "구역명"
   },
@@ -44,29 +43,20 @@
       "EXTN_SRQT": "외부일사량",
       "EXTN_ACCMLT_QOFLG": "외부누적광량",
       "PRCPT_YN": "강수여부",
-      "EXTN_TPRT": "외부온도"
+      "EXTN_TPRT": "외부온도",
+      "DYTM_NIGHT_CD": "주간야간구분코드"
     }
   },
   "control": {
     "RTTN_PUMP_OPRT_YN_1": "순환펌프작동여부_1",
     "RTTN_PUMP_OPRT_YN_2": "순환펌프작동여부_2",
-    "CLR_OPRT_YN_1": "냉방기작동여부_1",
-    "CLR_OPRT_YN_2": "냉방기작동여부_2",
-    "CLR_OPMD_1": "냉방기작동모드_1",
-    "CLR_OPMD_2": "냉방기작동모드_2",
-    "CLR_OPMD_3": "냉방기작동모드_3",
-    "CLR_OPMD_4": "냉방기작동모드_4",
-    "CLR_OPMD_5": "냉방기작동모드_5",
     "SPRYN_DEVICE": "분무장치",
     "SUB_MHRLS_OPRT_YN_1": "보조기기작동여부_1",
     "SUB_MHRLS_OPRT_YN_2": "보조기기작동여부_2",
     "SUB_MHRLS_OPRT_YN_3": "보조기기작동여부_3",
-    "SUB_MHRLS_OPRT_YN_4": "보조기기작동여부_4",
-    "FLFN_OPRT_YN": "유동팬작동여부",
     "SUB_MHRLS_OPMD_1": "보조기기작동모드_1",
     "SUB_MHRLS_OPMD_2": "보조기기작동모드_2",
     "SUB_MHRLS_OPMD_3": "보조기기작동모드_3",
-    "FLFN_OPMD": "유동팬작동모드",
     "SPL_TPRT_1": "공급온도_1",
     "SPL_TPRT_2": "공급온도_2",
     "FMGEQ_OPMD": "훈증기작동모드",
@@ -80,10 +70,8 @@
     "HRZNT_SCRN_OPDR_RATE_1": "수평스크린개도율_1",
     "HRZNT_SCRN_OPDR_RATE_2": "수평스크린개도율_2",
     "SKLT_OPMD_1_LEFT": "천창작동모드_1_좌",
-    "SKLT_OPMD_2_LEFT": "천창작동모드_2_좌",
     "SKLT_OPDR_RATE_1_LEFT": "천창개도율_1_좌",
     "SKLT_OPDR_RATE_1_RIGHT": "천창개도율_1_우",
-    "BL_OPRT_YN": "보일러작동여부",
     "FMGEQ_OPRT_YN": "훈증기작동여부",
     "CBDX_GNRT_OPRT_YN": "이산화탄소발생기작동여부",
     "CBDX_STNG_VL": "이산화탄소설정값",
@@ -96,5 +84,20 @@
     "VNTILAT_TPRT_3": "배기온도_3",
     "VNTILAT_TPRT_4": "배기온도_4",
     "VNTILAT_TPRT_5": "배기온도_5"
+  },
+  "allZeros": {
+    "CLR_OPRT_YN_1": "냉방기작동여부_1",
+    "CLR_OPRT_YN_2": "냉방기작동여부_2",
+    "CLR_OPRT_YN_3": "냉방기작동여부_3",
+    "CLR_OPMD_1": "냉방기작동모드_1",
+    "CLR_OPMD_2": "냉방기작동모드_2",
+    "CLR_OPMD_3": "냉방기작동모드_3",
+    "CLR_OPMD_4": "냉방기작동모드_4",
+    "CLR_OPMD_5": "냉방기작동모드_5",
+    "FLFN_OPRT_YN": "유동팬작동여부",
+    "FLFN_OPMD": "유동팬작동모드",
+    "SUB_MHRLS_OPRT_YN_4": "보조기기작동여부_4",
+    "SKLT_OPMD_2_LEFT": "천창작동모드_2_좌",
+    "BL_OPRT_YN": "보일러작동여부"
   }
 }
