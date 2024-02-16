@@ -2,24 +2,40 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 
-class LSTM(nn.Module):
+# RNN 모델 정의
+class RNN(nn.Module):
+    name = "RNN"
+    def __init__(self, input_dim=1, hidden_size=64, output_dim=1,
+                 device="cpu", taskType="regression"):
+        super(RNN, self).__init__()
+        self.hidden_size = hidden_size
+        self.device = device
+        self.rnn = nn.RNN(input_dim, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_dim)
+        self.device = device
 
+    def forward(self, x):
+        h0 = torch.zeros(1, x.size(0), self.hidden_size).to(self.device)
+        out, _ = self.rnn(x, h0)
+        out = self.fc(out[:, -1, :])
+        return out
+
+class LSTM(nn.Module):
+    name = "LSTM"
     def __init__(self, input_dim=1, output_dim=1,
-                  hidden_size=4, num_layers=1,
+                  hidden_size=64, num_layers=1,
                   device="cpu", taskType="regression"):
         super(LSTM, self).__init__()
 
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.device = device
-        # self.taskType = taskType
         
         self.lstm = nn.LSTM(input_size=input_dim, hidden_size=hidden_size,
                             num_layers=num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, output_dim)
-        self.sigmoid = nn.Sigmoid()
-        self.softmax = nn.Softmax(dim=1)   
-
+        # self.sigmoid = nn.Sigmoid()
+        # self.softmax = nn.Softmax(dim=1)   
         # self._task = {
         #     "regression": lambda x: x,
         #     "classification": lambda x: (self.sigmoid(x) > 0.5).float(),
@@ -46,7 +62,7 @@ class LSTM(nn.Module):
 
 class DoubleLayerLSTM(nn.Module):
     def __init__(self, input_dim=1, output_dim=1,
-                  hidden_size=4, num_layers=1,
+                  hidden_size=64, num_layers=1,
                   device="cpu"):
         super(DoubleLayerLSTM, self).__init__()
 
@@ -98,11 +114,12 @@ class _PositionalEncoding(nn.Module):
         return x
     
 # Model definition using Transformer
-class TransformerModel(nn.Module):
+class Transformer(nn.Module):
+    name = "Transformer"
     def __init__(self, input_dim=1, output_dim=1, 
                  d_model=64, nhead=4, num_layers=1,
                  device="cpu"):
-        super(TransformerModel, self).__init__()
+        super(Transformer, self).__init__()
 
         self.encoder = nn.Linear(input_dim, d_model)
         self.pos_encoder = _PositionalEncoding(d_model)

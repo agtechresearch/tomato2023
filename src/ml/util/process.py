@@ -109,13 +109,17 @@ class Modeling:
         self.optimizer = torch.optim.Adam(
             self.model.parameters(), lr=lr)
         
-        self.scheduler = ReduceLROnPlateau(
-            self.optimizer, 'min', factor=0.5, patience=3, verbose=True)
+        # self.scheduler = ReduceLROnPlateau(
+        #     self.optimizer, 'min', factor=0.5, patience=3, verbose=True)
 
 
     def train(self, epochs, train_loader, test_loader, early_stop_count=None):
-        min_val_loss = float('inf')
-
+        # min_val_loss = float('inf')
+        history = {
+            "epoch": [], 
+            "train_loss": [],
+            "val_loss": []            
+        }
         for epoch in range(1, epochs+1):
             self.model.train()
             for batch in train_loader:
@@ -144,18 +148,22 @@ class Modeling:
             val_loss = np.mean(val_losses)
             # self.scheduler.step(val_loss)
             if epoch % 10 == 0:
-                print(f"Epoch {epoch}/{epochs}, Training Loss: {train_loss}, Validation Loss: {val_loss:.8f}")
+                print(f"Epoch {epoch}, Traini Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
+                history["epoch"].append(epoch)
+                history["train_loss"].append(train_loss.item())
+                history["val_loss"].append(val_loss)
 
-            if early_stop_count:
-                if val_loss < min_val_loss:
-                    min_val_loss = val_loss
-                    early_stop_count = 0
-                else:
-                    early_stop_count += 1
+            # if early_stop_count:
+            #     if val_loss < min_val_loss:
+            #         min_val_loss = val_loss
+            #         early_stop_count = 0
+            #     else:
+            #         early_stop_count += 1
 
-                if early_stop_count >= 5:
-                    print("Early stopping!")
-                    break
+            #     if early_stop_count >= 5:
+            #         print("Early stopping!")
+            #         break
+        return history
 
     def eval(self, test_loader, y_test):
         self.model.eval()
