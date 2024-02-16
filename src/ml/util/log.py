@@ -20,7 +20,11 @@ def plot_ts_result(true_val, pred_val, bonus=None, fname="plot_result.png"):
     plt.savefig(fname)
     plt.show()
     
-
+def calc_diff(true_val, pred_val):
+    absv = np.abs(true_val-pred_val)
+    unique, counts = np.unique(np.ceil(absv), return_counts=True)
+    plt.bar(unique, counts)
+    return dict(zip(unique, counts))
 
 def parameter_size(model):
     param_size = 0
