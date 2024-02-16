@@ -16,8 +16,21 @@ class MyDataset:
         self.df = df
         self.x_cols = x_cols if x_cols else list(df.columns)
         self.y_cols = y_cols if y_cols else list(df.columns)
+        self.x_train = None
+        self.x_test = None
         self.y_train = None
         self.y_test = None
+        self.train_loader = None
+        self.test_loader = None
+    
+    def print_loader(self):
+        for loader in [self.train_loader, self.test_loader]:
+            if loader:
+                print(f"Total data: {len(loader)}")
+                for t in loader:
+                    print(f"train: {t[0].shape}, test: {t[1].shape}")
+            else:
+                print("Loader is not initialized. Run preprocessing() function.")
 
     def _to_sequences(self, df, seq_size=SEQUENCE_SIZE):
         num_len = df.shape[0] - seq_size
@@ -44,6 +57,8 @@ class MyDataset:
 
     def preprocessing(self, train_ratio=0.8):
         x_train, y_train, x_test, y_test = self._train_test_split(train_ratio)
+        self.x_train = x_train
+        self.x_test = x_test
         self.y_train = y_train
         self.y_test = y_test
         
@@ -53,6 +68,8 @@ class MyDataset:
         test_dataset = TensorDataset(x_test, y_test)
         test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, 
                                 shuffle=False, drop_last=True)
+        self.train_loader = train_loader
+        self.test_loader = test_loader
         
         return train_loader, test_loader
     

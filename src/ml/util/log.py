@@ -10,12 +10,16 @@ def describe_df(df):
     plt.suptitle('Original Dataset')
     plt.show()
 
-def plot_ts_result(true_val, pred_val):
+def plot_ts_result(true_val, pred_val, bonus=None, fname="plot_result.png"):
     plt.figure(figsize=(15, 5)) 
     plt.plot(true_val, linestyle='solid')
     plt.plot(pred_val, linestyle='dotted')
+    if bonus:
+        plt.plot(bonus, linestyle="dotted")
     plt.suptitle('Time-Series Prediction')
+    plt.savefig(fname)
     plt.show()
+    
 
 
 def parameter_size(model):
